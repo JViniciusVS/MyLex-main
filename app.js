@@ -9,6 +9,9 @@ const path = require("path");
 // Servir arquivos estáticos do diretório "public"
 app.use(express.static(path.join(__dirname, "public")));
 
+// Servir arquivos estáticos do diretório "uploads"
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Upload Config Import
 const upload = require("./utils/uploadConfig");
 

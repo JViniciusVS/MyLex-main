@@ -171,7 +171,7 @@
                     <form id="addProcessForm">
                         <div class="mb-3">
                             <label for="processFile" class="form-label">Arquivo</label>
-                            <input type="text" class="form-control" id="processFile" required>
+                            <input type="file" class="form-control" id="processFile" accept="application/pdf" required>
                         </div>
                         <div class="mb-3">
                             <label for="processCategory" class="form-label">Categoria</label>
@@ -207,7 +207,6 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        // Função para carregar os processos
         async function loadProcesses() {
             const response = await fetch('http://localhost:3000/processos/');
             const processes = await response.json();
@@ -217,7 +216,7 @@
             processes.forEach(process => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${process.arquivo}</td>
+                    <td><a href="${process.arquivo}" target="_blank">Ver Arquivo</a></td>
                     <td>${process.categoria}</td>
                     <td>${process.status}</td>
                     <td>${process.cliente}</td>
@@ -230,24 +229,21 @@
             });
         }
 
-        // Função para adicionar um novo processo
         async function addProcess() {
-            const processFile = document.getElementById('processFile').value;
+            const processFile = document.getElementById('processFile').files[0];
             const processCategory = document.getElementById('processCategory').value;
             const processStatus = document.getElementById('processStatus').value;
             const processClient = document.getElementById('processClient').value;
 
+            const formData = new FormData();
+            formData.append('arquivo', processFile);
+            formData.append('categoria', processCategory);
+            formData.append('status', processStatus);
+            formData.append('cliente', processClient);
+
             const response = await fetch('http://localhost:3000/processos/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    arquivo: processFile,
-                    categoria: processCategory,
-                    status: processStatus,
-                    cliente: processClient
-                })
+                body: formData
             });
 
             if (response.ok) {
@@ -257,10 +253,8 @@
             }
         }
 
-        // Função para editar um processo
         async function editProcess(processId) {
             const process = await fetch(`http://localhost:3000/processos/${processId}`).then(res => res.json());
-            document.getElementById('processFile').value = process.arquivo;
             document.getElementById('processCategory').value = process.categoria;
             document.getElementById('processStatus').value = process.status;
             document.getElementById('processClient').value = process.cliente;
@@ -269,24 +263,21 @@
             modal.show();
         }
 
-        // Função para atualizar um processo
         async function updateProcess(processId) {
-            const processFile = document.getElementById('processFile').value;
+            const processFile = document.getElementById('processFile').files[0];
             const processCategory = document.getElementById('processCategory').value;
             const processStatus = document.getElementById('processStatus').value;
             const processClient = document.getElementById('processClient').value;
 
+            const formData = new FormData();
+            formData.append('arquivo', processFile);
+            formData.append('categoria', processCategory);
+            formData.append('status', processStatus);
+            formData.append('cliente', processClient);
+
             const response = await fetch(`http://localhost:3000/processos/${processId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    arquivo: processFile,
-                    categoria: processCategory,
-                    status: processStatus,
-                    cliente: processClient
-                })
+                body: formData
             });
 
             if (response.ok) {
@@ -296,8 +287,6 @@
             }
         }
 
-
-        // Função para excluir um processo
         async function deleteProcess(processId) {
             const response = await fetch(`http://localhost:3000/processos/${processId}`, {
                 method: 'DELETE'
