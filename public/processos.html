@@ -121,7 +121,7 @@
         <div class="container-fluid">
             <a class="logo ms-4 navbar-brand" href="homepage.html">MyLex</a>
             <div class="mx-5">
-                <a class="p-2" style="color: #e7d49e" href="#">Agenda</a>
+                <a class="p-2" style="color: #e7d49e" href="calendar.html">Agenda</a>
                 <a class="p-2" style="color: #e7d49e" href="cliente.html">Clientes</a>
             </div>
         </div>
@@ -137,8 +137,8 @@
         <table>
             <thead>
                 <tr>
+                    <th>Arquivo</th>
                     <th>Processo</th>
-                    <th>Categoria</th>
                     <th>Status</th>
                     <th>Cliente</th>
                     <th>Ações</th>
@@ -174,7 +174,7 @@
                             <input type="file" class="form-control" id="processFile" accept="application/pdf" required>
                         </div>
                         <div class="mb-3">
-                            <label for="processCategory" class="form-label">Categoria</label>
+                            <label for="processCategory" class="form-label">Processo</label>
                             <input type="text" class="form-control" id="processCategory" required>
                         </div>
                         <div class="mb-3">
@@ -207,6 +207,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+        // Função para carregar os processos
         async function loadProcesses() {
             const response = await fetch('http://localhost:3000/processos/');
             const processes = await response.json();
@@ -216,18 +217,19 @@
             processes.forEach(process => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><a href="${process.arquivo}" target="_blank">Ver Arquivo</a></td>
-                    <td>${process.categoria}</td>
-                    <td>${process.status}</td>
-                    <td>${process.cliente}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="editProcess('${process._id}')">Editar</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteProcess('${process._id}')">Excluir</button>
-                    </td>
-                `;
+            <td>${process.arquivo ? `<a href="/${process.arquivo}" download>Ver Arquivo</a>` : ''}</td>
+            <td>${process.categoria}</td>
+            <td>${process.status}</td>
+            <td>${process.cliente}</td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="editProcess('${process._id}')">Editar</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteProcess('${process._id}')">Excluir</button>
+            </td>
+        `;
                 processTable.appendChild(row);
             });
         }
+
 
         async function addProcess() {
             const processFile = document.getElementById('processFile').files[0];
