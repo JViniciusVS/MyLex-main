@@ -215,9 +215,10 @@
             processTable.innerHTML = '';
 
             processes.forEach(process => {
+        const localFilePath = `file:/${process.arquivo.replace(/\\/g, '/')}`;
                 const row = document.createElement('tr');
                 row.innerHTML = `
-            <td>${process.arquivo ? `<a href="/${process.arquivo}" download>Ver Arquivo</a>` : ''}</td>
+            <td>${process.arquivo ? `<a href="${localFilePath}" target="_blank">Ver Arquivo</a>` : ''}</td>
             <td>${process.categoria}</td>
             <td>${process.status}</td>
             <td>${process.cliente}</td>
