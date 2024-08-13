@@ -121,7 +121,7 @@
         <div class="container-fluid">
             <a class="logo ms-4 navbar-brand" href="homepage.html">MyLex</a>
             <div class="mx-5">
-                <a class="p-2" style="color: #e7d49e" href="#">Agenda</a>
+                <a class="p-2" style="color: #e7d49e" href="vanillacalendar.html">Agenda</a>
                 <a class="p-2" style="color: #e7d49e" href="cliente.html">Clientes</a>
             </div>
         </div>
@@ -137,15 +137,17 @@
         <table>
             <thead>
                 <tr>
+                    <th>Arquivo</th>
                     <th>Processo</th>
-                    <th>Categoria</th>
                     <th>Status</th>
+                    <th>Notas</th>
                     <th>Cliente</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="processTable">
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -174,7 +176,7 @@
                             <input type="file" class="form-control" id="processFile" accept="application/pdf" required>
                         </div>
                         <div class="mb-3">
-                            <label for="processCategory" class="form-label">Categoria</label>
+                            <label for="processCategory" class="form-label">Processo</label>
                             <input type="text" class="form-control" id="processCategory" required>
                         </div>
                         <div class="mb-3">
@@ -184,6 +186,10 @@
                                 <option value="Em andamento">Em andamento</option>
                                 <option value="Concluído">Concluído</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="processNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="processNotes" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="processClient" class="form-label">Cliente</label>
@@ -199,6 +205,24 @@
         </div>
     </div>
 
+    <!-- Modal para exibir notas -->
+    <div class="modal fade" id="notesModal" tabindex="-1" aria-labelledby="notesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="notesModalLabel">Notas</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="notesContent"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2024 MyLex. Todos os direitos reservados.</p>
     </footer>
@@ -207,6 +231,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+        // Função para carregar os processos
         async function loadProcesses() {
             const response = await fetch('http://localhost:3000/processos/');
             const processes = await response.json();
@@ -214,11 +239,13 @@
             processTable.innerHTML = '';
 
             processes.forEach(process => {
+                const localFilePath = `file:///${process.arquivo.replace(/\\/g, '/')}`;
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><a href="${process.arquivo}" target="_blank">Ver Arquivo</a></td>
+                    <td>${process.arquivo ? `<a href="${localFilePath}" target="_blank">Ver Arquivo</a>` : ''}</td>
                     <td>${process.categoria}</td>
                     <td>${process.status}</td>
+                    <td>${process.notas ? `<span>${process.notas.substring(0, 10)}...</span> <a href="#" onclick="showNotes('${process.notas}')">+</a>` : ''}</td>
                     <td>${process.cliente}</td>
                     <td>
                         <button class="btn btn-warning btn-sm" onclick="editProcess('${process._id}')">Editar</button>
@@ -229,16 +256,24 @@
             });
         }
 
+        function showNotes(notes) {
+            document.getElementById('notesContent').innerText = notes;
+            const modal = new bootstrap.Modal(document.getElementById('notesModal'));
+            modal.show();
+        }
+
         async function addProcess() {
             const processFile = document.getElementById('processFile').files[0];
             const processCategory = document.getElementById('processCategory').value;
             const processStatus = document.getElementById('processStatus').value;
+            const processNotes = document.getElementById('processNotes').value;
             const processClient = document.getElementById('processClient').value;
 
             const formData = new FormData();
             formData.append('arquivo', processFile);
             formData.append('categoria', processCategory);
             formData.append('status', processStatus);
+            formData.append('notas', processNotes);
             formData.append('cliente', processClient);
 
             const response = await fetch('http://localhost:3000/processos/', {
@@ -257,6 +292,7 @@
             const process = await fetch(`http://localhost:3000/processos/${processId}`).then(res => res.json());
             document.getElementById('processCategory').value = process.categoria;
             document.getElementById('processStatus').value = process.status;
+            document.getElementById('processNotes').value = process.notas;
             document.getElementById('processClient').value = process.cliente;
             document.getElementById('saveProcessButton').onclick = () => updateProcess(processId);
             const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
@@ -267,12 +303,14 @@
             const processFile = document.getElementById('processFile').files[0];
             const processCategory = document.getElementById('processCategory').value;
             const processStatus = document.getElementById('processStatus').value;
+            const processNotes = document.getElementById('processNotes').value;
             const processClient = document.getElementById('processClient').value;
 
             const formData = new FormData();
             formData.append('arquivo', processFile);
             formData.append('categoria', processCategory);
             formData.append('status', processStatus);
+            formData.append('notas', processNotes);
             formData.append('cliente', processClient);
 
             const response = await fetch(`http://localhost:3000/processos/${processId}`, {
