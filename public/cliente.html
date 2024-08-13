@@ -166,6 +166,16 @@
                         <button class="btn btn-danger btn-sm">Excluir</button>
                     </td>
                 </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button class="btn btn-warning btn-sm">Editar</button>
+                        <button class="btn btn-danger btn-sm">Excluir</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -193,6 +203,8 @@
                             <input type="text" class="form-control" id="clientPhone" required>
                         </div>
                         <div class="mb-3">
+                            <label for="clientProcess" class="form-label">Processo</label>
+                            <input type="text" class="form-control" id="clientProcess" required>
                             <label for="clientProcess" class="form-label">Processo</label>
                             <input type="text" class="form-control" id="clientProcess" required>
                         </div>
@@ -228,6 +240,7 @@
                     <td>${client.email}</td>
                     <td>${client.telefone || ''}</td>
                     <td>${client.processo || ''}</td>
+                    <td>${client.processo || ''}</td>
                     <td>
                         <button class="btn btn-warning btn-sm" onclick="editClient('${client._id}')">Editar</button>
                         <button class="btn btn-danger btn-sm" onclick="deleteClient('${client._id}')">Excluir</button>
@@ -246,6 +259,7 @@
             const clientEmail = document.getElementById('clientEmail').value;
             const clientPhone = document.getElementById('clientPhone').value;
             const clientProcess = document.getElementById('clientProcess').value;
+            const clientProcess = document.getElementById('clientProcess').value;
 
             const response = await fetch('http://localhost:3000/cliente/', {
                 method: 'POST',
@@ -256,6 +270,7 @@
                     nomeCompleto: clientName,
                     email: clientEmail,
                     telefone: clientPhone,
+                    processo: clientProcess
                     processo: clientProcess
                 })
             });
@@ -277,18 +292,20 @@
                 currentClientId = clientId;
             }
 
-            const client = await fetch(`http://localhost:3000/cliente/${currentClientId}`).then(res => res.json());
+            const client = await fetch(`/cliente/${currentClientId}`).then(res => res.json());
             document.getElementById('clientName').value = client.nomeCompleto;
             document.getElementById('clientEmail').value = client.email;
             document.getElementById('clientPhone').value = client.telefone || '';
+            document.getElementById('clientProcess').value = client.processo || '';
             document.getElementById('clientProcess').value = client.processo || '';
             document.getElementById('saveClientButton').onclick = async function () {
                 const clientName = document.getElementById('clientName').value;
                 const clientEmail = document.getElementById('clientEmail').value;
                 const clientPhone = document.getElementById('clientPhone').value;
                 const clientProcess = document.getElementById('clientProcess').value;
+                const clientProcess = document.getElementById('clientProcess').value;
 
-                const response = await fetch(`http://localhost:3000/cliente/${clientId}`, {
+                const response = await fetch(`/cliente/${clientId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -297,6 +314,7 @@
                         nomeCompleto: clientName,
                         email: clientEmail,
                         telefone: clientPhone,
+                        processo: clientProcess
                         processo: clientProcess
                     })
                 });
